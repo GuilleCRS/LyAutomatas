@@ -1,0 +1,113 @@
+PARSER_BEGIN(lexer)
+class lexer
+{  
+	public static void main(String[] args) throws ParseException, FileNotFoundException
+	{
+		try
+		{
+			lexer analizador=new lexer(new java.io.FileInputStream("src/proyecto/prueba.txt"));
+			//analizador.Start();
+			analizador.programa();
+			System.out.println("La cadena fué aceptada");
+		}
+		catch(ParseException e)
+		{
+			System.out.println(e.getMessage());
+			//system.out.println("Se han encontrado errores, falló al compilar");
+		}
+	}
+}
+PARSER_END(lexer)
+/* Ignorados */
+SKIP: {" " | "\t" | "\r" | "\n" }
+
+/* Palabras Reservadas */
+TOKEN :
+{
+< MODIFIER: "private" | "public" >
+| < CLASS: "class" >
+| < TYPE_SPECIFIER: "boolean" | "int" >
+| < IF: "if" >
+| < WHILE: "while" >
+}
+
+/* Separadores */
+TOKEN :
+{
+  < LPAREN: "(" >
+| < RPAREN: ")" >
+| < LBRACE: "{" >
+| < RBRACE: "}" >
+| < SEMICOLON: ";" >
+}
+
+
+/* Operadores */
+TOKEN :
+{
+  < ASSIGN: "=" >
+| < EXPRESSION: ">" | "<" | "==" | "<=" | ">=" | "!=" >
+| < PLUS: "+" >
+| < MINUS: "-" >
+}
+
+/* Literales */
+TOKEN:
+{
+< INTEGER_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|< BOOLEAN_LITERAL: "false" | "true" >
+}
+
+/* Identificador */
+TOKEN:
+{
+	< IDENTIFIER:(["a"-"z","_"])* > }
+  
+
+void programa():{}{
+	try{
+		<MODIFIER> <CLASS> <IDENTIFIER> <LBRACE> (variable_declaration()| statement())* <RBRACE>
+	}catch(ParseException e){
+		System.out.println("Error de Sintaxis");
+		System.out.println(e.toString());
+	}
+	
+}
+/*Métodos para field_declaration*/
+void field_declaration():{}{
+	variable_declaration()
+}
+
+void variable_declaration():{}{
+	<MODIFIER> type() variable_declarator()<SEMICOLON>
+}
+
+void type():{}{
+	<TYPE_SPECIFIER>
+}
+
+void variable_declarator():{}{
+	<IDENTIFIER> <ASSIGN> (<INTEGER_LITERAL> | <BOOLEAN_LITERAL>)
+}
+
+/*Metodos para statement*/
+void statement():{}{
+	variable_declaration() | if_statement() | while_statement()
+}
+
+void if_statement():{}{
+	<IF> <LPAREN> expression() <RPAREN> statement()
+}
+
+void while_statement():{}{
+	<WHILE> <LPAREN> expression() <RPAREN> statement()
+}
+
+void expression():{}{
+	testing_expression()
+}
+
+void testing_expression():{}{
+	(<INTEGER_LITERAL> | <IDENTIFIER>) <EXPRESSION> (<INTEGER_LITERAL> | <IDENTIFIER>)
+}
+
