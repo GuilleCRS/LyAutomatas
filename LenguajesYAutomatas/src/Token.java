@@ -1,3 +1,5 @@
+package sample;
+
 public class Token {
     String token,tipo,linea,valor,columna;
 

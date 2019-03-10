@@ -1,3 +1,5 @@
+package sample;
+
 public enum Sintaxis {
     //Declaracion de clase mediante una expresion regular
     //space-publicORprivate-space-class-identificador-space

@@ -1,3 +1,5 @@
+package sample;
+
 public enum Tipo {
     RESERVADAS_DEL_SISTEMA("(class|public|static|void|extends|return|if|while|"
             + "System.out.println|lenght|case|break|this|do|package|"

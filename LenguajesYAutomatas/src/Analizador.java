@@ -1,3 +1,4 @@
+package sample;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,8 +10,8 @@ import java.util.regex.Pattern;
 public class Analizador {
     HashMap<Integer,String> texto=new HashMap<Integer,String>();//Hashmap contiene la linea y el texto de respecitva linea
     HashMap<Integer,String> tipoSintactico=new HashMap<>();//Contiene los tipos de sintaxis ejemplo: DECLRACION_CLASE = 0
-    HashMap<String,Token> Variables=new HashMap<>();//Contiene las variables que se encuentran durante el analisis semantico
-  //  ArrayList<String> ContenedorLlavesVariables=new ArrayList<>();//Contiene las llaves de variables que existen durante
+    HashMap<String, Token> Variables=new HashMap<>();//Contiene las variables que se encuentran durante el analisis semantico
+    //  ArrayList<String> ContenedorLlavesVariables=new ArrayList<>();//Contiene las llaves de variables que existen durante
     ArrayList<String> ErrSemantico=new ArrayList<>();//Contiene los errores que se encuentran durante el analisis semantico
     ArrayList<Token> Tokens = new ArrayList<Token>();//Contiene la lista de todos los tokens aceptados durante el analisis lexico con sus respectivos valores
     ArrayList<Token> TokensNoAceptados = new ArrayList<Token>();//Contiene la lista de todos los tokens no aceptados durante el analisis lexico
@@ -23,7 +24,7 @@ public class Analizador {
     public Analizador() throws IOException {
         int opcionMenu;
         java.util.Scanner nc=new java.util.Scanner(System.in);
-        if(Leer("src/prueba.txt")){
+        if(Leer("src/sample/prueba.txt")){
             do {
                 System.out.println("Que desea hacer?\n" +
                         "1°- Analizador Lexico\n" +
@@ -31,7 +32,7 @@ public class Analizador {
                         "3°- Analizador Semantico\n" +
                         "0°- SALIR.\n" +
                         "Digite su opcion:\n");
-                         opcionMenu=nc.nextInt();
+                opcionMenu=nc.nextInt();
                 switch (opcionMenu){
                     case 1: {
                         System.out.println(" <-- Codigo Fuente --> ");
@@ -153,7 +154,6 @@ public class Analizador {
                 Boolean Matched=false; //Manejador de errores, si es = true se aceptaron los tokens
                 //Si el token detectado es un token en blanco se consume y se va al siguiente token
                 if(palabra.trim().isEmpty()){
-                    colm--; //Si hay un esapacio no contamos esa columna
                     continue;
                 }
                 for(Tipo TokenTipo : Tipo.values()){
@@ -166,7 +166,7 @@ public class Analizador {
                         Token tk=new Token();
                         tk.setToken(palabra);
                         tk.setTipo(TokenTipo.toString());
-                        tk.setLinea(String.valueOf(i));
+                        tk.setLinea(String.valueOf(i+1));
                         tk.setColumna(String.valueOf(colm));
                         Tokens.add(tk);
                         //System.out.println(tk.getToken()+" "+tk.getTipo());
@@ -183,7 +183,7 @@ public class Analizador {
                     //Agregamos a un arreglo los errores lexicos encontrados
                     Token tkna=new Token();
                     tkna.setToken(palabra);
-                    tkna.setLinea(String.valueOf(i));
+                    tkna.setLinea(String.valueOf(i+1));
                     tkna.setColumna(String.valueOf(colm));
                     TokensNoAceptados.add(tkna);
                 }
@@ -215,7 +215,7 @@ public class Analizador {
                     for(int j=0;j<tipoSintactico.size();j++){
                         //Si el nombre del patron en curso es igual a alguno del recorrido en tipo sintaxis entra en el if
                         if (sin.toString().equals(tipoSintactico.get(j))) {
-                           //System.out.println(" ==> "+j);
+                            //System.out.println(" ==> "+j);
                             //Se establece una sintaxis de programa por ejemplo si fuese DECLARACION_CLASE la cual su valor es 0 , repetida 3 veces
                             //en las primeras 3 lineas, se forma un string que seria " 000 "
                             //Si solo fuese en las primeras 2 se formaria un string que seria " 00 "
@@ -252,6 +252,7 @@ public class Analizador {
             }
             ErroresSintaxis.add("La sintaxis tiene la siguiente forma:\n"+SintaxisToString+">");
         }
+        RecorreVariables();
     }
     private void AnalizadorSemantico(){
         Sem=true;
@@ -281,7 +282,7 @@ public class Analizador {
                     if (ayudante.trim().isEmpty() || ayudante.equals("=") || ayudante.equals(";")) {
                         continue;
                     }
-                 //   System.out.println(ayudante);
+                    //   System.out.println(ayudante);
                     //Se agrega cada ayudante a un arreglo en caso de no ser vacio , igual o ;
                     //Nuestra sintaxis nos dice que pueden existir un arreglo con tamaño 2 o 3
                     ArregloAyudante.add(ayudante);
@@ -377,14 +378,14 @@ public class Analizador {
                 if(Variables.containsKey(variable)){//Si la variable existe podemos agregar su valor
                     String regex="";// inciamos auxiliar para contener la expresion regular de cada tipo
                     String ayudante2= Variables.get(variable).getTipo();//sacamos el tipo exacto del token
-                   // System.out.println("Se contiene la variable"+ayudante2);
+                    // System.out.println("Se contiene la variable"+ayudante2);
                     if(ayudante2.equals("int")){  regex=Tipo.ENTERO.patron; }// el auxiliar se hace el de la expresion regular
                     if(ayudante2.equals("double")){  regex=Tipo.DOUBLE.patron;}
                     if(ayudante2.equals("float")){  regex=Tipo.DOUBLE.patron;}
                     if(ayudante2.equals("boolean")){  regex=Tipo.BOOLEAN.patron; }
                     //Aqui ya tenemos la expresion regular dependiendo el tipo de la variable y tenemos que ver si el valor es compatible dependiendo el tipo
                     if(Pattern.matches(regex,ArregloAyudante.get(1))) {//Si el patron da match con su valor procedemos a agragarlo a la tabla
-                            Variables.get(variable).setValor(ArregloAyudante.get(1));
+                        Variables.get(variable).setValor(ArregloAyudante.get(1));
                     }else{//caso contrario da error semanitco y lo agregamos
                         ErrSem=true;
                         ErrSemantico.add("Se trato de inicializar la variable: ' "+variable+" ' de tipo: ' " +Variables.get(variable).getTipo()+
@@ -404,7 +405,7 @@ public class Analizador {
             }
         }
 
-       // System.out.println("Sintaxis: "+ProgramaSintaxis);
+        // System.out.println("Sintaxis: "+ProgramaSintaxis);
         RecorreVariables();
     }
     //Metodo para cargar el hashmap de sintaxis y asignar el valor de cada tipo de sintaxis posible, clase Sintaxis para ver el valor correspondiente
@@ -435,7 +436,7 @@ public class Analizador {
                     //System.out.println("Se encontro un identificador: "+tipoToken);
                     //Si el identificador tratado existe en la tabla de variables entra
                     if(Variables.containsKey(llaveExistencia)){
-                       // System.out.println("Se econtro la llave: "+llaveExistencia);
+                        // System.out.println("Se econtro la llave: "+llaveExistencia);
                         Token tkn=Variables.get(llaveExistencia);
                         //HACER EN CASE---
                         //Aqui se compara que el tipo sea int, booleano , float, double, o si el valor es nulo no hay necesidad de hacer comparacion

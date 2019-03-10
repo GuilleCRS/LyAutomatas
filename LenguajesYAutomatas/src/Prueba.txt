@@ -1,5 +1,6 @@
  class Prueba
  {
+    int bb;
     public static void main2()
     {
         int juan=0;
@@ -8,8 +9,7 @@
         float valorfloat=-0.43;
         double valordouble=12.43;
         int error1=-1;
-        int juan=1;
-        bb=true;
+        bb=2;
         bb=1;
 
         x=x+x-x;
