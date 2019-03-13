@@ -1,0 +1,20 @@
+class Prueba
+ {
+    int bb;
+    int hola;
+    public static void main2()
+    {
+        int x=1;
+        int z=0;
+        int z=0;
+        System.out.println("ANALIZADOR_LEXICO"+"HOLA_HOLA"+"hola");
+        boolean holi=true;
+        float valorfloat=-0.43;
+        double valordouble=12.43;
+        int error1=-1;
+        bb=2;
+        bb=1;
+        hola=1;
+        x:=(1.5+z)(*)(x*8);
+    }
+}
