@@ -31,100 +31,105 @@ import static java.lang.Thread.sleep;
 public class Controller implements Initializable {
 
     private ArrayList<Token> Tokens;
-    private boolean Lex=false,ErrLex=false,Sin=false,ErrSin=false,Sem=false,ErrSem=false,ArchivoAbierto=false;
-    private HashMap<Integer,String> texto,tipoSintactico;
-    private ArrayList<Token> TokensNoAceptados,VarsTkns;
+    private boolean Lex = false, ErrLex = false, Sin = false, ErrSin = false, Sem = false, ErrSem = false, ArchivoAbierto = false;
+    private HashMap<Integer, String> texto, tipoSintactico;
+    private ArrayList<Token> TokensNoAceptados, VarsTkns;
     private ArrayList<Expresion> Expresiones;
-    private ArrayList<String> ErroresSintaxis,ErrSemantico,Warnings;
+    private ArrayList<String> ErroresSintaxis, ErrSemantico, Warnings;
     private ObservableList<Token> t;
     private ObservableList<Token> t2;
-    private String Codigo="",ProgramaSintaxis="";
-    @FXML private TableView<Token> table,table2;
-    @FXML private TableColumn tkn,tpo,vlr,lna,cna;
-    @FXML private TableColumn tkn2,tpo2,vlr2,lna2;
-    @FXML private TextArea txtCDG;
-    @FXML private TextArea txtErr;
-    @FXML private AnchorPane Ventana;
-    @FXML private Tab VARS;
-    private HashMap<String,Token> Variables;
-    private boolean Warns=false;
-    private double UbicacionY,UbicacionX;
+    private String Codigo = "", ProgramaSintaxis = "";
+    @FXML
+    private TableView<Token> table, table2;
+    @FXML
+    private TableColumn tkn, tpo, vlr, lna, cna;
+    @FXML
+    private TableColumn tkn2, tpo2, vlr2, lna2;
+    @FXML
+    private TextArea txtCDG;
+    @FXML
+    private TextArea txtErr;
+    @FXML
+    private AnchorPane Ventana;
+    @FXML
+    private Tab VARS;
+    private HashMap<String, Token> Variables;
+    private boolean Warns = false;
+    private double UbicacionY, UbicacionX;
 
     //Metodo para salir del programa dando click a la x
     public void onExitButtonClicked(MouseEvent mouseEvent) {
         Platform.exit();
         System.exit(0);
     }
+
     //Metodo para dar reinicio al programa
     public void Restart(MouseEvent mouseEvent) throws IOException {
-        Stage Actualstage=(Stage) Ventana.getScene().getWindow();
+        Stage Actualstage = (Stage) Ventana.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("GUI.fxml"));
         Actualstage.close();
-        Stage NewStage=new Stage();
-        root.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                UbicacionY = event.getSceneY();
-                UbicacionX=event.getSceneX();
-            }
+        Stage NewStage = new Stage();
+        root.setOnMousePressed(event -> {
+            UbicacionY = event.getSceneY();
+            UbicacionX = event.getSceneX();
         });
-        root.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                NewStage.setX(event.getScreenX()-UbicacionX);
-                NewStage.setY(event.getScreenY()-UbicacionY);
-            }
+        root.setOnMouseDragged(event -> {
+            NewStage.setX(event.getScreenX() - UbicacionX);
+            NewStage.setY(event.getScreenY() - UbicacionY);
         });
-        NewStage.setScene(new Scene(root,975,495));
+        NewStage.setScene(new Scene(root, 975, 495));
         NewStage.setResizable(false);
         NewStage.initStyle(StageStyle.TRANSPARENT);
         NewStage.show();
     }
 
-    public void AnalizadorLexico(){
-        Tokens=new ArrayList<>();
-        TokensNoAceptados=new ArrayList<>();
-        Lex=true;
-        Sin=false;ErrSin=false;//Se reinician las banderas en caso de que se vuelva a hacer el analisis lexico
-        Sem=false;ErrSem=false;
+    public void AnalizadorLexico() {
+        Tokens = new ArrayList<>();
+        TokensNoAceptados = new ArrayList<>();
+        Lex = true;
+        Sin = false;
+        ErrSin = false;//Se reinician las banderas en caso de que se vuelva a hacer el analisis lexico
+        Sem = false;
+        ErrSem = false;
 
-        String palabra="";
+        String palabra;
         //Iteracion for que recorre las lineas del archivo txt
         //Como se maneja un hashmap se recorren las lineas apartir del 1
         //ir al metodo Leer
 
-        for(int i=1;i<=texto.size();i++){
-            String lineaActual=texto.get(i);
+        for (int i = 1; i <= texto.size(); i++) {
+            String lineaActual = texto.get(i);
             //Convertimos la linea en tokens con el tokenizer
-            StringTokenizer stkn=new StringTokenizer(lineaActual," ={[()]}+-/*:;\t\r",true);
+            StringTokenizer stkn = new StringTokenizer(lineaActual, " ={[()]}+-/*:;\t\r", true);
             //Creamos una variable para contar la columna tratada
-            int colm=0;
-            String aux1="";
-            Boolean posExpresion=false;//Verificamos si puede ser una posible expresion
+            int colm = 0;
+            String aux1;
+            Boolean posExpresion = false;//Verificamos si puede ser una posible expresion
             //Mientras existan mas tokens tomamos una variable y le asignamos la palabra(token)
-            while(stkn.hasMoreTokens()){
+            while (stkn.hasMoreTokens()) {
                 colm++;
-                palabra=stkn.nextToken();
-                Boolean Matched=false; //Manejador de errores, si es = true se aceptaron los tokens
+                palabra = stkn.nextToken();
+                boolean Matched = false; //Manejador de errores, si es = true se aceptaron los tokens
                 //Si el token detectado es un token en blanco se consume y se va al siguiente token
-                if(palabra.trim().isEmpty()){
+                if (palabra.trim().isEmpty()) {
                     colm--;
                     continue;
-                }if(palabra.equals(":")){
-                    aux1=palabra; //Se asigna el : a palabra
-                    palabra=stkn.nextToken();//Asignamos el nuevo token a palabra
-                    if(palabra.equals("=")){//Si palabra es igual a =
-                        palabra=aux1+palabra; //ahora la palabra es igual :=
+                }
+                if (palabra.equals(":")) {
+                    aux1 = palabra; //Se asigna el : a palabra
+                    palabra = stkn.nextToken();//Asignamos el nuevo token a palabra
+                    if (palabra.equals("=")) {//Si palabra es igual a =
+                        palabra = aux1 + palabra; //ahora la palabra es igual :=
                     }//Caso contrario solamente pasa el igual y se ignora el : ya que no deberia usarse en la gramatica
                 }
-                for(Tipo TokenTipo : Tipo.values()){
+                for (Tipo TokenTipo : Tipo.values()) {
                     //Se establece un patron REGEX para comparar
-                    Pattern patron= Pattern.compile(TokenTipo.patron);
+                    Pattern patron = Pattern.compile(TokenTipo.patron);
                     //Se establece lo que queremos comparar ante el patron REGEX
                     Matcher matcher = patron.matcher(palabra);
-                    if(matcher.matches()){
+                    if (matcher.matches()) {
                         //Aqui entraria si hace match y se crea un objeto para guardar el token con su valor
-                        Token tk=new Token();
+                        Token tk = new Token();
                         tk.setToken(palabra);
                         tk.setTipo(TokenTipo.toString());
                         tk.setLinea(String.valueOf(i));
@@ -132,17 +137,17 @@ public class Controller implements Initializable {
                         Tokens.add(tk);
                         //System.out.println(tk.getToken()+" "+tk.getTipo());
                         //Matched se convierte en veradero para saltar a la proxima iteracion
-                        Matched=true;
+                        Matched = true;
                         break;
                     }
                 }
                 //Caso contrario no hizo match entonces lo agregamos a la lista de errores
-                if(!Matched){
+                if (!Matched) {
                     System.out.println("Se encontró un error lexico:");
                     //Establecemos que hay errores lexicos
-                    ErrLex=true;
+                    ErrLex = true;
                     //Agregamos a un arreglo los errores lexicos encontrados
-                    Token tkna=new Token();
+                    Token tkna = new Token();
                     tkna.setToken(palabra);
                     tkna.setLinea(String.valueOf(i));
                     tkna.setColumna(String.valueOf(colm));
@@ -160,12 +165,13 @@ public class Controller implements Initializable {
         System.out.println("\nFin elementos encontrados\n");*/
         ChequeoErrores();
     }
-    public void AnalizadorSintactico(){
-        ProgramaSintaxis="";
-        if(Lex) {//Verificamos que se haya realizado el analisis lexico
-            if(!ErrLex) {//Verificamos que se haya realizado el analisis sintactico
+
+    public void AnalizadorSintactico() {
+        ProgramaSintaxis = "";
+        if (Lex) {//Verificamos que se haya realizado el analisis lexico
+            if (!ErrLex) {//Verificamos que se haya realizado el analisis sintactico
                 ErroresSintaxis = new ArrayList<>();
-                Expresiones=new ArrayList<>();
+                Expresiones = new ArrayList<>();
                 Sin = true;
                 CargaTablaDeSintaxis();
                 //Se inicializa la variable que contendra la sintaxis general del programa prueba para compararlo con una expresion regular
@@ -186,38 +192,37 @@ public class Controller implements Initializable {
                                 //Si el nombre del patron en curso es igual a alguno del recorrido en tipo sintaxis entra en el if
                                 if (sin.toString().equals(tipoSintactico.get(j))) {
                                     //Si el identificador es 6 se va a validar la forma de una expresion
-                                    if(j==6){//Se va a validar la forma de la expresion
-                                        System.out.println("Se encontro expresion: "+lineaActual);
-                                        String Expresion="";
-                                        String Asigna="";
-                                        Boolean salto1tkn=false;//bandera para indicar que se salto el primer token (identificador)
+                                    if (j == 6) {//Se va a validar la forma de la expresion
+                                        System.out.println("Se encontro expresion: " + lineaActual);
+                                        String Expresion = "";
+                                        String Asigna = "";
+                                        boolean salto1tkn = false;//bandera para indicar que se salto el primer token (identificador)
                                         //Se separa la expresion en tokens
-                                        StringTokenizer stkn=new StringTokenizer(lineaActual," :={[()]}+-/*;\t\r",true);
+                                        StringTokenizer stkn = new StringTokenizer(lineaActual, " :={[()]}+-/*;\t\r", true);
                                         //Naturalmente una expresion es el identificador seguido de un := posteriormente la expresion a asignar
-                                        while(stkn.hasMoreTokens()){
-                                            String tknActual=stkn.nextToken();
-                                            if(tknActual.trim().isEmpty()||tknActual.equals(";")||tknActual.equals(":")||tknActual.equals("=")){
+                                        while (stkn.hasMoreTokens()) {
+                                            String tknActual = stkn.nextToken();
+                                            if (tknActual.trim().isEmpty() || tknActual.equals(";") || tknActual.equals(":") || tknActual.equals("=")) {
                                                 continue;
-                                            }else if(!salto1tkn){//Se salta el primer token que seria el identificador
-                                                Asigna=tknActual;
-                                                salto1tkn=true;
+                                            } else if (!salto1tkn) {//Se salta el primer token que seria el identificador
+                                                Asigna = tknActual;
+                                                salto1tkn = true;
                                                 continue;
-                                            }
-                                            else{//Se salta, en caso contrario se agrega al string que contiene la expresion
-                                                Expresion=Expresion+tknActual;
+                                            } else {//Se salta, en caso contrario se agrega al string que contiene la expresion
+                                                Expresion = Expresion + tknActual;
                                             }
                                         }
                                         //Al terminar ese ciclo tendriamos una expresion y procedemos a evaluar
                                         //System.out.println(expresion);
-                                        AnalizadorExpresion ana=new AnalizadorExpresion();
-                                        if(!ana.Analisis(Expresion)){ //Si el analisis de expresion da falso , quiere decir que la expresion no tiene buena sintaxis
-                                           //System.out.println("Entro: "+lineaActual);
-                                            ErroresSintaxis.add("\nSe encontro un error sintactico en la expresion: "+ Expresion+" que se encuentra en la linea: "+i+"\n");
-                                            ErrSin=true;
-                                        }else{//Caso contrario se agrega en un objeto a un arreglo de expresiones
+                                        AnalizadorExpresion ana = new AnalizadorExpresion();
+                                        if (!ana.Analisis(Expresion)) { //Si el analisis de expresion da falso , quiere decir que la expresion no tiene buena sintaxis
+                                            //System.out.println("Entro: "+lineaActual);
+                                            ErroresSintaxis.add("\nSe encontro un error sintactico en la expresion: " + Expresion + " que se encuentra en la linea: " + i + "\n");
+                                            ErrSin = true;
+                                        } else {//Caso contrario se agrega en un objeto a un arreglo de expresiones
                                             //System.out.println("Expresion");
 
-                                            Expresion exp=new Expresion();
+                                            Expresion exp = new Expresion();
                                             exp.setAsigna(Asigna);
                                             exp.setExpresion(ana.aggEspacio(Expresion));
                                             exp.setLinea(i);
@@ -245,7 +250,7 @@ public class Controller implements Initializable {
                         ErrSin = true;
                     }
                 }
-                System.out.println("");
+                System.out.println();
                 //Verifica si el patron obtenido hace match con el de la sintaxis general y si no existen errores sintacticos por linea
                 if (!ErrSin) {
                     if (!Pattern.matches(Sintaxis.SINTAXIS_GENERAL.patronSin, ProgramaSintaxis)) {
@@ -264,12 +269,11 @@ public class Controller implements Initializable {
                     }
                 }
                 txtErr.setText("");
-            }else{
+            } else {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Se encontraron errores lexicos, proceda a corregir", ButtonType.OK);
                 alert.showAndWait();
             }
-        }
-        else{
+        } else {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Debe realizar el analisis lexico", ButtonType.OK);
             alert.show();
             try {
@@ -278,15 +282,17 @@ public class Controller implements Initializable {
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            } {
+            }
+            {
             }
         }
-        Expresiones.forEach(v->System.out.println(v.getAsigna()+v.getExpresion()));
+        Expresiones.forEach(v -> System.out.println(v.getAsigna() + v.getExpresion()));
         ChequeoErrores();
     }
-    public void AnalizadorSemantico(){
-        if(Lex&Sin) { //Verificamos que se hayan realizado los analisis previos
-            if(!ErrSin) {
+
+    public void AnalizadorSemantico() {
+        if (Lex & Sin) { //Verificamos que se hayan realizado los analisis previos
+            if (!ErrSin) {
                 ErrSemantico = new ArrayList<>();
                 Variables = new HashMap<>();
                 Sem = true;
@@ -370,8 +376,7 @@ public class Controller implements Initializable {
                                 ErrSemantico.add("\nSe trato de declarar nuevamente la variable: " + ArregloAyudante.get(1) + " en la lnea: " + i + " la cual ya esta declarada en la linea: " + Variables.get(ArregloAyudante.get(1)).getLinea());
                             }
                             //Tamaño 4 = TIPO + VAIRABLE + VALOR CON SIGNO NEGATIVO (int x , -45.5)
-                        }
-                        else if (ArregloAyudante.size() == 4) {
+                        } else if (ArregloAyudante.size() == 4) {
                             String valor = ArregloAyudante.get(2) + ArregloAyudante.get(3); //Tomamos el valor convertimos a negativo agregando su signo al string
                             //Si la variable no esta previamente declarada procedemos a agregarla
                             if (!Variables.containsKey(ArregloAyudante.get(1))) {
@@ -451,59 +456,61 @@ public class Controller implements Initializable {
                     }
                     //Si el indicie es = a 6 quiere decir que se encontro una expresion
                     if (indice == 6) {
- //                       x=x + x-x;
+                        //                       x=x + x-x;
+                        //Analizador Sintactio
 
                     }
-                    VarsTkns=new ArrayList<>();
-                    Variables.forEach((k,v)-> VarsTkns.add(v));
-                    t2= FXCollections.observableArrayList(VarsTkns);
+                    VarsTkns = new ArrayList<>();
+                    Variables.forEach((k, v) -> VarsTkns.add(v));
+                    t2 = FXCollections.observableArrayList(VarsTkns);
                     CargaSemantico();//SE CARGAN LAS VARIABLES DEL ANALISIS A LA INTERGAZ
                 }
-            }else{
+            } else {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Se encontraron errores sintacticos, proceda a corregir", ButtonType.OK);
                 alert.showAndWait();
                 return;
             }
-            if(!Expresiones.isEmpty()){
+            if (!Expresiones.isEmpty()) {
                 Expresiones.forEach(expresion -> {
                     //Recorremos todas las expresiones guardadas durante el analisis semantico
-                    if(Variables.containsKey(expresion.getAsigna())){//Si la variable a la que se le quiere asignar la expresion existe entra
-                        String tipo=Variables.get(expresion.getAsigna()).getTipo();//Aqui se guardara el tipo de la variable para asginar
-                        StringTokenizer stkn=new StringTokenizer(expresion.getExpresion()," *+-/()",true);
-                        while (stkn.hasMoreTokens()){
-                            String token=stkn.nextToken();
-                            if(token.trim().isEmpty()){ continue; }
-                            if(Pattern.matches(Tipo.IDENTIFICADORES.patron,token)){//Se procede a trabajar solo con los identificadores de la expresion
-                                if(Variables.containsKey(token)){//Si existe la variable
-                                    if(Variables.get(token).getTipo().equals(tipo)){//Las variables son del mismo tipo
-                                        if(!Variables.get(token).getValor().equals("null")){//La variable tratada si tiene valor
+                    if (Variables.containsKey(expresion.getAsigna())) {//Si la variable a la que se le quiere asignar la expresion existe entra
+                        String tipo = Variables.get(expresion.getAsigna()).getTipo();//Aqui se guardara el tipo de la variable para asginar
+                        StringTokenizer stkn = new StringTokenizer(expresion.getExpresion(), " *+-/()", true);
+                        while (stkn.hasMoreTokens()) {
+                            String token = stkn.nextToken();
+                            if (token.trim().isEmpty()) {
+                                continue;
+                            }
+                            if (Pattern.matches(Tipo.IDENTIFICADORES.patron, token)) {//Se procede a trabajar solo con los identificadores de la expresion
+                                if (Variables.containsKey(token)) {//Si existe la variable
+                                    if (Variables.get(token).getTipo().equals(tipo)) {//Las variables son del mismo tipo
+                                        if (!Variables.get(token).getValor().equals("null")) {//La variable tratada si tiene valor
+                                            //Aun no se trabaja con expresiones en forma , solo sintaxis y contexto
 
-                                        }else{//Caso contrario error semantico sin valor
-                                            ErrSemantico.add("\nLa variable: "+token+" en la expresion: "+expresion.getAsigna()+":="+expresion.getExpresion()+" de tipo: "+Variables.get(token).getTipo()+" tiene un valor nulo");
-                                            ErrSem=true;
+                                        } else {//Caso contrario error semantico sin valor
+                                            ErrSemantico.add("\nLa variable: " + token + " en la expresion: " + expresion.getAsigna() + ":=" + expresion.getExpresion() + " de tipo: " + Variables.get(token).getTipo() + " tiene un valor nulo");
+                                            ErrSem = true;
                                         }
+                                    } else {//Caso contrario Error semantico tipos diferentes
+                                        ErrSemantico.add("\nLa variable: " + token + " en la expresion: " + expresion.getAsigna() + ":=" + expresion.getExpresion() + " de tipo: " + Variables.get(token).getTipo() + " no es compatible con " +
+                                                "la variable principal: " + expresion.getAsigna() + " la cual es de tipo: " + tipo);
+                                        ErrSem = true;
                                     }
-                                    else{//Caso contrario Error semantico tipos diferentes
-                                        ErrSemantico.add("\nLa variable: "+token+" en la expresion: "+expresion.getAsigna()+":="+expresion.getExpresion()+" de tipo: "+Variables.get(token).getTipo()+" no es compatible con " +
-                                                "la variable principal: "+expresion.getAsigna()+" la cual es de tipo: "+tipo);
-                                        ErrSem=true;
-                                    }
-                                }else{//Caso contrario Error semantico no existe variable
-                                    ErrSemantico.add("\nLa variable: "+token+" en la expresion: "+expresion.getAsigna()+":="+expresion.getExpresion()+" no ha sido declarada");
-                                    ErrSem=true;
+                                } else {//Caso contrario Error semantico no existe variable
+                                    ErrSemantico.add("\nLa variable: " + token + " en la expresion: " + expresion.getAsigna() + ":=" + expresion.getExpresion() + " no ha sido declarada");
+                                    ErrSem = true;
                                 }
                             }
                         }
-                    }else{//caso contrario error semantico no funciona
-                        ErrSemantico.add("\nLa variable: "+expresion.getAsigna()+" a la que se le quiere asignar el resultado de la expresion: "+
-                                expresion.getExpresion()+" no se encuentra declarada\n");
-                        ErrSem=true;
+                    } else {//caso contrario error semantico no funciona
+                        ErrSemantico.add("\nLa variable: " + expresion.getAsigna() + " a la que se le quiere asignar el resultado de la expresion: " +
+                                expresion.getExpresion() + " no se encuentra declarada\n");
+                        ErrSem = true;
                     }
                 });
 
             }
-        }
-        else{
+        } else {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Debe realizar los analisis previos", ButtonType.OK);
             alert.showAndWait();
             return;
@@ -517,8 +524,8 @@ public class Controller implements Initializable {
     }
 
     private void ActualizaValoresTablaTokens() {
-        Tokens.forEach(v->{
-            if(Variables.containsKey(v.getToken())){
+        Tokens.forEach(v -> {
+            if (Variables.containsKey(v.getToken())) {
                 v.setValor(Variables.get(v.getToken()).getValor());
             }
         });
@@ -526,102 +533,105 @@ public class Controller implements Initializable {
     }
 
     //Metodo para imprimir por consola todas las variables encontradas
-    private void RecorreVariables(){
-        if(!Variables.isEmpty()) {
+    private void RecorreVariables() {
+        if (!Variables.isEmpty()) {
             System.out.println();
             Variables.forEach((k, v) -> System.out.println("Variable: " + k + "  Variable: " + v.getToken() + "  Tipo: " + v.getTipo()
                     + "  Valor: " + v.getValor() + "  Linea: " + v.getLinea()));
             System.out.println();
         }
     }
+
     //Metodo para leer el texto
-    public boolean Leer(String Ruta) throws java.io.FileNotFoundException, IOException {
+    private boolean Leer(String Ruta) throws IOException {
         String Texto;
-        int NumLinea=0;
-        texto=new HashMap<>();
+        int NumLinea = 0;
+        texto = new HashMap<>();
         //Se crea la lecutra del fichero y se agrega al buffer para tratar linea por linea
-        try{
-            java.io.FileReader f= new java.io.FileReader(Ruta);
-            java.io.BufferedReader b=new java.io.BufferedReader(f);
-            while((Texto = b.readLine())!=null){
+        try {
+            java.io.FileReader f = new java.io.FileReader(Ruta);
+            java.io.BufferedReader b = new java.io.BufferedReader(f);
+            while ((Texto = b.readLine()) != null) {
                 NumLinea++;
-                ArchivoAbierto=true;
-                Codigo=Codigo+NumLinea+"\t"+Texto+"\n";
+                ArchivoAbierto = true;
+                Codigo = Codigo + NumLinea + "\t" + Texto + "\n";
                 //Como es un hashmap la llave la tomamos como el numero de linea por eso se inicia en 1, no hay problema si comienza en 0
-                texto.put(NumLinea,Texto);
+                texto.put(NumLinea, Texto);
             }
             b.close();
-        }catch (Exception e){
-            System.out.println("No se pudo abrir el archivo:\nError: "+e.toString());
+        } catch (Exception e) {
+            System.out.println("No se pudo abrir el archivo:\nError: " + e.toString());
         }
-        if(ArchivoAbierto){
+        if (ArchivoAbierto) {
             txtCDG.setText(Codigo);
         }
         return ArchivoAbierto;
     }
+
     //Carga los diferentes tipos de sintaxis en un mapa id + nombre
     private void CargaTablaDeSintaxis() {
         /*0DECLARACION_CLASE,1DECLARACION_MAIN,2LBRA,3VARDEC
         4VARINIT,5VARDECINIT,6EXPRESSION,7PRINT
         8RBRA,9LNULL,10SINTAXIS_GENERAL*/
-        tipoSintactico=new HashMap<>();
-        int contador=0;
+        tipoSintactico = new HashMap<>();
+        int contador = 0;
         //Se recorre cada tipo y se manda a un hashmap el valor de tipo de sintaxis y el nombre del tipo de sintaxis
-        for(Sintaxis v : Sintaxis.values()){
-            tipoSintactico.put(contador,v.toString());
+        for (Sintaxis v : Sintaxis.values()) {
+            tipoSintactico.put(contador, v.toString());
             contador++;
         }
-        tipoSintactico.forEach((v,k)->System.out.println(v.toString()+k));
+        tipoSintactico.forEach((v, k) -> System.out.println(v.toString() + k));
     }
+
     //Chequea si existe algun error o advertencia en algun analisis
-    private void ChequeoErrores(){
-        String ayudante="";
-        if(ErrLex|ErrSin|ErrSem|Warns){
+    private void ChequeoErrores() {
+        String ayudante = "";
+        if (ErrLex | ErrSin | ErrSem | Warns) {
             //Si se encontro algun tipo de error la ventana cambia de tamaño para mostrar la zona de errores
             Ventana.getScene().getWindow().setHeight(700);
-           // Ventana.getScene().getWindow().
+            // Ventana.getScene().getWindow().
         }
-        if(ErrLex){
+        if (ErrLex) {
             //Se recorren los elementos no aceptados
             System.out.println("\nLos siguientes elementos no fueron encontrados en la gramatica\n");
             CargaErrores("<Analisis Lexico>\nLos siguientes elementos no fueron encontrados en la gramatica:\n");
-            TokensNoAceptados.iterator().forEachRemaining((v)-> {
-                CargaErrores("\nToken: " + v.getToken() + " \t\tLinea: " + v.getLinea() + "\t\tColumna: " + v.getColumna() + "\n");
-                    });
+            TokensNoAceptados.iterator().forEachRemaining((v) -> CargaErrores("\nToken: " + v.getToken() + " \t\tLinea: " + v.getLinea() + "\t\tColumna: " + v.getColumna() + "\n"));
             CargaErrores("\nFin elementos no encontrados\n");
         }
         //Verifica si existen errores Sintacticos
-        if(ErrSin){
+        if (ErrSin) {
             //Se recorren los errores en sintaxis
             CargaErrores("\n\n<Analisis Sintactico>\nSe muestran errores Sintacticos\n");
-            ErroresSintaxis.forEach(v-> CargaErrores(v));
+            ErroresSintaxis.forEach(this::CargaErrores);
             CargaErrores("\nFin errores Sintacticos\n");
         }
-        if(ErrSem){
+        if (ErrSem) {
             CargaErrores("\nSe muestran errores Semanticos\n");
-            ErrSemantico.forEach(v->CargaErrores(v));
+            ErrSemantico.forEach(this::CargaErrores);
             CargaErrores("\nFin errores Semanticos");
         }
-        if(Warns){
+        if (Warns) {
             CargaErrores("\nSe muestran warnings\n");
-            Warnings.forEach(v->CargaErrores(v));
+            Warnings.forEach(this::CargaErrores);
             CargaErrores("\nFin Warnings\n");
         }
 
     }
+
     //Carga los errores en el cuadro de texto
-    private void CargaErrores(String hola){
-        txtErr.setText(""+txtErr.getText()+hola);
+    private void CargaErrores(String hola) {
+        txtErr.setText("" + txtErr.getText() + hola);
     }
+
     //Va a recorrer todas las variables y verificar que tengan valores distintos a nulo
-    private void ChequeoVariablesSinInicializar(){
+    private void ChequeoVariablesSinInicializar() {
         System.out.println("Entro al metodo");
-        Warnings=new ArrayList<>();
-        if(!Variables.isEmpty()){
-            Variables.forEach((v,k)->{
-                if(k.getValor().equals("null")){
-                    Warns=true;
-                    Warnings.add("Warn: La variable: "+v+" no fue inicializada\t\t Linea--> #"+k.getLinea()+"\n");
+        Warnings = new ArrayList<>();
+        if (!Variables.isEmpty()) {
+            Variables.forEach((v, k) -> {
+                if (k.getValor().equals("null")) {
+                    Warns = true;
+                    Warnings.add("Warn: La variable: " + v + " no fue inicializada\t\t Linea--> #" + k.getLinea() + "\n");
                 }
             });
         }
@@ -635,20 +645,22 @@ public class Controller implements Initializable {
             System.out.println("ERRORSILLO");
         }
     }
+
     //Metodos para cargar tablas graficas
-    public void CargaLexico(){
-        tkn.setCellValueFactory(new PropertyValueFactory<Token,String>("Token"));
-        tpo.setCellValueFactory(new PropertyValueFactory<Token,String>("Tipo"));
-        vlr.setCellValueFactory(new PropertyValueFactory<Token,String>("Valor"));
-        lna.setCellValueFactory(new PropertyValueFactory<Token,String>("Linea"));
-        cna.setCellValueFactory(new PropertyValueFactory<Token,String>("Columna"));
+    private void CargaLexico() {
+        tkn.setCellValueFactory(new PropertyValueFactory<Token, String>("Token"));
+        tpo.setCellValueFactory(new PropertyValueFactory<Token, String>("Tipo"));
+        vlr.setCellValueFactory(new PropertyValueFactory<Token, String>("Valor"));
+        lna.setCellValueFactory(new PropertyValueFactory<Token, String>("Linea"));
+        cna.setCellValueFactory(new PropertyValueFactory<Token, String>("Columna"));
         table.getItems().setAll(t);
     }
-    public void CargaSemantico(){
-        tkn2.setCellValueFactory(new PropertyValueFactory<Token,String>("Token"));
-        tpo2.setCellValueFactory(new PropertyValueFactory<Token,String>("Tipo"));
-        vlr2.setCellValueFactory(new PropertyValueFactory<Token,String>("Valor"));
-        lna2.setCellValueFactory(new PropertyValueFactory<Token,String>("Linea"));
+
+    private void CargaSemantico() {
+        tkn2.setCellValueFactory(new PropertyValueFactory<Token, String>("Token"));
+        tpo2.setCellValueFactory(new PropertyValueFactory<Token, String>("Tipo"));
+        vlr2.setCellValueFactory(new PropertyValueFactory<Token, String>("Valor"));
+        lna2.setCellValueFactory(new PropertyValueFactory<Token, String>("Linea"));
         table2.getItems().setAll(t2);
 
     }
