@@ -4,7 +4,6 @@ import GUI.Recursos.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -17,8 +16,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URL;
 
@@ -222,10 +219,12 @@ public class Controller implements Initializable {
                                         } else {//Caso contrario se agrega en un objeto a un arreglo de expresiones
                                             //System.out.println("Expresion");
 
-                                            Expresion exp = new Expresion();
-                                            exp.setAsigna(Asigna);
-                                            exp.setExpresion(ana.aggEspacio(Expresion));
-                                            exp.setLinea(i);
+                                            Expresion exp = new Expresion();//Se crea una nuevo objeto expresion
+                                            exp.setAsigna(Asigna);//Variable que se le quiere asignar dicha expresion
+                                            exp.setExpresion(ana.aggEspacio(Expresion));//Expresion con espacios
+                                            exp.setLinea(i);//Numero de linea
+                                            exp.setPostorder(ana.Conversion(Expresion));
+                                            System.out.println(ana.aggEspacio(Expresion)+" "+ana.Conversion(Expresion));
                                             Expresiones.add(exp);
                                         }
                                     }
@@ -269,11 +268,11 @@ public class Controller implements Initializable {
                     }
                 }
                 txtErr.setText("");
-            } else {
+            } else {//Se encontro un error lexico, no se puede continuar con el analisis sintactico
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Se encontraron errores lexicos, proceda a corregir", ButtonType.OK);
                 alert.showAndWait();
             }
-        } else {
+        } else {//Se encontro que no se hizo el analisis previo
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Debe realizar el analisis lexico", ButtonType.OK);
             alert.show();
             try {
@@ -283,11 +282,9 @@ public class Controller implements Initializable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            {
-            }
         }
-        Expresiones.forEach(v -> System.out.println(v.getAsigna() + v.getExpresion()));
-        ChequeoErrores();
+        //Expresiones.forEach(v -> System.out.println(v.getAsigna() + v.getExpresion())); //<<--Se imprime la variable y la expresion que se le quiere asignar
+        ChequeoErrores();//Se checan los errores
     }
 
     public void AnalizadorSemantico() {
@@ -329,18 +326,9 @@ public class Controller implements Initializable {
                         }
                         String regex = "";//Iniciamos un auxiliar para contener la expresion regular
                         String ayudante2 = ArregloAyudante.get(0);//sacamos el tipo exacto del token
-                        if (ayudante2.equals("int")) {
-                            regex = Tipo.ENTERO.patron;
-                        }//el ayudante se vuelve el valor de la expresion regular dependiendo el tipo
-                        if (ayudante2.equals("double")) {
-                            regex = Tipo.DOUBLE.patron;
-                        }
-                        if (ayudante2.equals("float")) {
-                            regex = Tipo.DOUBLE.patron;
-                        }
-                        if (ayudante2.equals("boolean")) {
-                            regex = Tipo.BOOLEAN.patron;
-                        }
+
+                        regex = getTipo(regex, ayudante2);//comparo el tipo con la expresion regular para obtener el codigo de la expresion regular
+
                         //Vamos a ver que tipo de declaracion es para agregar a la tabla de variables
                         //Tamaño 3 = TIPO + VARIABLE/TOKEN + VALOR
                         if (ArregloAyudante.size() == 3) {
@@ -426,18 +414,7 @@ public class Controller implements Initializable {
                             String regex = "";// inciamos auxiliar para contener la expresion regular de cada tipo
                             String ayudante2 = Variables.get(variable).getTipo();//sacamos el tipo exacto del token
                             // System.out.println("Se contiene la variable"+ayudante2);
-                            if (ayudante2.equals("int")) {
-                                regex = Tipo.ENTERO.patron;
-                            }// el auxiliar se hace el de la expresion regular
-                            if (ayudante2.equals("double")) {
-                                regex = Tipo.DOUBLE.patron;
-                            }
-                            if (ayudante2.equals("float")) {
-                                regex = Tipo.DOUBLE.patron;
-                            }
-                            if (ayudante2.equals("boolean")) {
-                                regex = Tipo.BOOLEAN.patron;
-                            }
+                            regex = getTipo(regex, ayudante2);
                             //Aqui ya tenemos la expresion regular dependiendo el tipo de la variable y tenemos que ver si el valor es compatible dependiendo el tipo
                             if (Pattern.matches(regex, ArregloAyudante.get(1))) {//Si el patron da match con su valor procedemos a agragarlo a la tabla
                                 Variables.get(variable).setValor(ArregloAyudante.get(1));
@@ -457,8 +434,7 @@ public class Controller implements Initializable {
                     //Si el indicie es = a 6 quiere decir que se encontro una expresion
                     if (indice == 6) {
                         //                       x=x + x-x;
-                        //Analizador Sintactio
-
+                        //Analizador Sintactico
                     }
                     VarsTkns = new ArrayList<>();
                     Variables.forEach((k, v) -> VarsTkns.add(v));
@@ -470,7 +446,7 @@ public class Controller implements Initializable {
                 alert.showAndWait();
                 return;
             }
-            if (!Expresiones.isEmpty()) {
+            if (!Expresiones.isEmpty()) {//Checamos si hay elementos en la tabla de expresiones
                 Expresiones.forEach(expresion -> {
                     //Recorremos todas las expresiones guardadas durante el analisis semantico
                     if (Variables.containsKey(expresion.getAsigna())) {//Si la variable a la que se le quiere asignar la expresion existe entra
@@ -510,26 +486,44 @@ public class Controller implements Initializable {
                 });
 
             }
-        } else {
+        } else {//Se encontro que no se han hecho los analisi previos , muesta el error
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Debe realizar los analisis previos", ButtonType.OK);
             alert.showAndWait();
             return;
         }
-        RecorreVariables();
-        ChequeoVariablesSinInicializar();
-        ActualizaValoresTablaTokens();
-        ChequeoErrores();
+        RecorreVariables();//SE recorren variables por consola , no necesario
+        ChequeoVariablesSinInicializar(); //Se checan las variables cuyo valor es nulo
+        ActualizaValoresTablaTokens();//Actualiza la tabla de tokens con los nuevos valores encontrados
+        ChequeoErrores();//Checa los errores encontrados y los recarga;
 
         // System.out.println("Sintaxis: "+ProgramaSintaxis);
     }
 
+    //Metodo que dependiendo el tipo de una variable regresa un expresion regular
+    private String getTipo(String regex, String ayudante2) {
+        if (ayudante2.equals("int")) {
+            regex = Tipo.ENTERO.patron;
+        }// el auxiliar se hace el de la expresion regular
+        if (ayudante2.equals("double")) {
+            regex = Tipo.DOUBLE.patron;
+        }
+        if (ayudante2.equals("float")) {
+            regex = Tipo.DOUBLE.patron;
+        }
+        if (ayudante2.equals("boolean")) {
+            regex = Tipo.BOOLEAN.patron;
+        }
+        return regex;
+    }
+
+    //Metodo para actualizar la tabla de tokens con los nuevos valores
     private void ActualizaValoresTablaTokens() {
         Tokens.forEach(v -> {
             if (Variables.containsKey(v.getToken())) {
                 v.setValor(Variables.get(v.getToken()).getValor());
             }
         });
-        CargaLexico();
+        CargaLexico();//Metodo para recargar el grafico de la tabla
     }
 
     //Metodo para imprimir por consola todas las variables encontradas
@@ -583,7 +577,7 @@ public class Controller implements Initializable {
         tipoSintactico.forEach((v, k) -> System.out.println(v.toString() + k));
     }
 
-    //Chequea si existe algun error o advertencia en algun analisis
+    //Checa si existe algun error o advertencia en algun analisis
     private void ChequeoErrores() {
         String ayudante = "";
         if (ErrLex | ErrSin | ErrSem | Warns) {
@@ -606,12 +600,12 @@ public class Controller implements Initializable {
             CargaErrores("\nFin errores Sintacticos\n");
         }
         if (ErrSem) {
-            CargaErrores("\nSe muestran errores Semanticos\n");
+            CargaErrores("\n\n<Analisis Semanticos>\nSe muestran errores Semanticos\n");
             ErrSemantico.forEach(this::CargaErrores);
             CargaErrores("\nFin errores Semanticos");
         }
         if (Warns) {
-            CargaErrores("\nSe muestran warnings\n");
+            CargaErrores("\n\n<Warnings>\nSe muestran warnings\n");
             Warnings.forEach(this::CargaErrores);
             CargaErrores("\nFin Warnings\n");
         }
@@ -619,8 +613,8 @@ public class Controller implements Initializable {
     }
 
     //Carga los errores en el cuadro de texto
-    private void CargaErrores(String hola) {
-        txtErr.setText("" + txtErr.getText() + hola);
+    private void CargaErrores(String error) {
+        txtErr.setText("" + txtErr.getText() + error);
     }
 
     //Va a recorrer todas las variables y verificar que tengan valores distintos a nulo
