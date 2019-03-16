@@ -25,6 +25,7 @@ public class Main extends Application {
     private Stage stage;
     Integer hola=1;
 
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         root = FXMLLoader.load(getClass().getResource("GUI.fxml"));

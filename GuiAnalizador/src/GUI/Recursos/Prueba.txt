@@ -16,5 +16,6 @@ class Prueba
         bb=1;
         hola=1;
         x:=(1.5+z)(*)(x*8);
+
     }
 }

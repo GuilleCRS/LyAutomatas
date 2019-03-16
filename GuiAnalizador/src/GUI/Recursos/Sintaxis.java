@@ -46,7 +46,7 @@ public enum Sintaxis {
     //Linea nula
     //IDENTIFICADOR == 9
     LNULL("(\\s)*"),
-    SINTAXIS_GENERAL("(9)*(0)(9)*(2)(9)*(3|5)*(9)*(1)(9)*(2)(9)*(3|4|5|6|7|9)*(8)(9)*(8)(9)*");
+    SINTAXIS_GENERAL("(\\s)*(9)*(\\s)*(0)(\\s)*(9)*(\\s)*(2)(\\s)*(9)*(\\s)*(3|5|(\\s))*(\\s)*(9)*(\\s)*(1)(\\s)*(9)*(\\s)*(2)(\\s)*(9)*(\\s)*(3|4|5|6|7|9|(\\s))*(\\s)*(8)(\\s)*(9)*(\\s)*(8)(\\s)*(9)*(\\s)*");
 
     /*** LOS IDENTIFICADORES SE ASIGNAN EN LA CLASE ANALIZADOR LEXICO ***/
 
@@ -54,6 +54,7 @@ public enum Sintaxis {
 
 
     public final String patronSin;
+
 
     Sintaxis(String Regex){
         this.patronSin = Regex;

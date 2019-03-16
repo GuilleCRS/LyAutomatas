@@ -1,9 +1,9 @@
 package GUI.Recursos;
 
 public enum Tipo {
-    RESERVADAS_DEL_SISTEMA("(class|public|static|void|extends|return|if|while|"
-            + "System.out.println|lenght|case|break|this|do|package|"
-            + "new|main|int|boolean|String|float)"),
+    RESERVADAS_DEL_SISTEMA("(class|public|static|void|if|while|"
+            + "System.out.println|"
+            + "main|int|boolean|String|float)"),
     STRING("\"((.)+)?\""),
     ENTERO("^(\\-)?\\d+$"),
     DOUBLE("(\\-)?((\\d)+)?(\\.)(\\d)+"),

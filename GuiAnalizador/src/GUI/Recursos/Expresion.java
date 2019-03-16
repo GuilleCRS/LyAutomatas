@@ -3,6 +3,8 @@ package GUI.Recursos;
 public class Expresion {
     private String asigna,expresion,postorder;
     private int linea;
+
+
     public Expresion(){}
 
     public Expresion(String asigna, String expresion,String postorder) {

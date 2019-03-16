@@ -233,7 +233,7 @@ public class Controller implements Initializable {
                                     //Si solo fuese en las primeras 2 y posteriormente en la 3er linea un LBRA( { ) el cual su valor es 2
                                     //se formaria un string que seria " 002 " y esa seria la logica, posteriormente se compara el string obtenido
                                     //con otra expresion regular para ver si la sintaxis de el programa completo es correcta
-                                    ProgramaSintaxis = ProgramaSintaxis + j;
+                                    ProgramaSintaxis = ProgramaSintaxis +" "+ j;
                                     break;
                                 }
                             }
@@ -293,9 +293,11 @@ public class Controller implements Initializable {
                 Sem = true;
                 //El largo de ProgramaSintaxis siempre va a ser igual al numero de lineas en el
                 //Lo recorro desde 1 porque las lineas del texto comienzan desde la 1
-                for (int i = 1; i <= ProgramaSintaxis.length(); i++) {
+                StringTokenizer tokenizer=new StringTokenizer(ProgramaSintaxis," ");
+                int i=1;//Se comienza la linea en 1 porque es la primer linea del texto
+                while(tokenizer.hasMoreTokens()){
                     //Aqui utilizamos i-1 para comenzar con el 0 porque el largo de la palabra generada comienza desde 0
-                    int indice = Integer.parseInt(String.valueOf(ProgramaSintaxis.charAt(i - 1)));
+                    int indice = Integer.parseInt(tokenizer.nextToken());
                     //Si el indice es igual a VARDEC == 3 o VARDECINIT == 5 entrara al if dado que no necesita verificar su existencia previa
                     //System.out.println("Linea: "+i);
                     if (indice == 3 || indice == 5) {
@@ -438,6 +440,7 @@ public class Controller implements Initializable {
                     Variables.forEach((k, v) -> VarsTkns.add(v));
                     t2 = FXCollections.observableArrayList(VarsTkns);
                     CargaSemantico();//SE CARGAN LAS VARIABLES DEL ANALISIS A LA INTERGAZ
+                    i++;
                 }
             } else {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Se encontraron errores sintacticos, proceda a corregir", ButtonType.OK);
