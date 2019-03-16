@@ -23,6 +23,7 @@ public class Main extends Application {
     private ObservableList<Token> t = null;
     private Parent root;
     private Stage stage;
+    Integer hola=1;
 
     @Override
     public void start(Stage primaryStage) throws Exception {

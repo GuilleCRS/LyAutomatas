@@ -48,8 +48,6 @@ public class Controller implements Initializable {
     private TextArea txtErr;
     @FXML
     private AnchorPane Ventana;
-    @FXML
-    private Tab VARS;
     private HashMap<String, Token> Variables;
     private boolean Warns = false;
     private double UbicacionY, UbicacionX;
@@ -589,7 +587,9 @@ public class Controller implements Initializable {
             //Se recorren los elementos no aceptados
             System.out.println("\nLos siguientes elementos no fueron encontrados en la gramatica\n");
             CargaErrores("<Analisis Lexico>\nLos siguientes elementos no fueron encontrados en la gramatica:\n");
-            TokensNoAceptados.iterator().forEachRemaining((v) -> CargaErrores("\nToken: " + v.getToken() + " \t\tLinea: " + v.getLinea() + "\t\tColumna: " + v.getColumna() + "\n"));
+            TokensNoAceptados.iterator().forEachRemaining((v) -> {
+                CargaErrores("\nToken: " + v.getToken() + " \t\tLinea: " + v.getLinea() + "\t\tColumna: " + v.getColumna() + "\n");
+            });
             CargaErrores("\nFin elementos no encontrados\n");
         }
         //Verifica si existen errores Sintacticos
