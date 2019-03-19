@@ -219,10 +219,9 @@ public class Controller implements Initializable {
 
                                             Expresion exp = new Expresion();//Se crea una nuevo objeto expresion
                                             exp.setAsigna(Asigna);//Variable que se le quiere asignar dicha expresion
-                                            exp.setExpresion(ana.aggEspacio(Expresion));//Expresion con espacios
+                                            exp.setExpresion(Expresion);//Expresion con espacios
                                             exp.setLinea(i);//Numero de linea
                                             exp.setPostorder(ana.Conversion(Expresion));
-                                            System.out.println(ana.aggEspacio(Expresion)+" "+ana.Conversion(Expresion));
                                             Expresiones.add(exp);
                                         }
                                     }
@@ -293,6 +292,7 @@ public class Controller implements Initializable {
                 Sem = true;
                 //El largo de ProgramaSintaxis siempre va a ser igual al numero de lineas en el
                 //Lo recorro desde 1 porque las lineas del texto comienzan desde la 1
+                //Se separa la cadena programaSintaxis ya que esta por espacios
                 StringTokenizer tokenizer=new StringTokenizer(ProgramaSintaxis," ");
                 int i=1;//Se comienza la linea en 1 porque es la primer linea del texto
                 while(tokenizer.hasMoreTokens()){
