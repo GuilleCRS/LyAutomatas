@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.Thread.sleep;
+
 
 public class Controller implements Initializable {
 
@@ -33,8 +33,8 @@ public class Controller implements Initializable {
     private ArrayList<Token> TokensNoAceptados, VarsTkns;
     private ArrayList<Expresion> Expresiones;
     private ArrayList<String> ErroresSintaxis, ErrSemantico, Warnings;
-    private ObservableList<Token> t;
-    private ObservableList<Token> t2;
+    private ObservableList<Token> t; //Lista de tokens cargar tabla
+    private ObservableList<Token> t2; //Lista de variables cargar tabla, no es necesario
     private String Codigo = "", ProgramaSintaxis = "";
     @FXML
     private TableView<Token> table, table2;
@@ -222,6 +222,7 @@ public class Controller implements Initializable {
                                             exp.setExpresion(Expresion);//Expresion con espacios
                                             exp.setLinea(i);//Numero de linea
                                             exp.setPostorder(ana.Conversion(Expresion));
+                                            System.out.println(ana.Conversion(Expresion));
                                             Expresiones.add(exp);
                                         }
                                     }
@@ -271,14 +272,7 @@ public class Controller implements Initializable {
             }
         } else {//Se encontro que no se hizo el analisis previo
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Debe realizar el analisis lexico", ButtonType.OK);
-            alert.show();
-            try {
-                sleep(2000);
-                alert.close();
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            alert.showAndWait();
         }
         //Expresiones.forEach(v -> System.out.println(v.getAsigna() + v.getExpresion())); //<<--Se imprime la variable y la expresion que se le quiere asignar
         ChequeoErrores();//Se checan los errores
@@ -364,7 +358,8 @@ public class Controller implements Initializable {
                                 ErrSemantico.add("\nSe trato de declarar nuevamente la variable: " + ArregloAyudante.get(1) + " en la lnea: " + i + " la cual ya esta declarada en la linea: " + Variables.get(ArregloAyudante.get(1)).getLinea());
                             }
                             //Tamaño 4 = TIPO + VAIRABLE + VALOR CON SIGNO NEGATIVO (int x , -45.5)
-                        } else if (ArregloAyudante.size() == 4) {
+                        }
+                        else if (ArregloAyudante.size() == 4) {
                             String valor = ArregloAyudante.get(2) + ArregloAyudante.get(3); //Tomamos el valor convertimos a negativo agregando su signo al string
                             //Si la variable no esta previamente declarada procedemos a agregarla
                             if (!Variables.containsKey(ArregloAyudante.get(1))) {
@@ -442,7 +437,8 @@ public class Controller implements Initializable {
                     CargaSemantico();//SE CARGAN LAS VARIABLES DEL ANALISIS A LA INTERGAZ
                     i++;
                 }
-            } else {
+            }
+            else {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Se encontraron errores sintacticos, proceda a corregir", ButtonType.OK);
                 alert.showAndWait();
                 return;
@@ -487,7 +483,8 @@ public class Controller implements Initializable {
                 });
 
             }
-        } else {//Se encontro que no se han hecho los analisi previos , muesta el error
+        }
+        else {//Se encontro que no se han hecho los analisi previos , muesta el error
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Debe realizar los analisis previos", ButtonType.OK);
             alert.showAndWait();
             return;

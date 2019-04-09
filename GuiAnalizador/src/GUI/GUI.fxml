@@ -10,7 +10,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="Ventana" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="703.0" prefWidth="976.0" style="-fx-background-color: #666666;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller">
+<AnchorPane fx:id="Ventana" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="703.0" prefWidth="976.0" style="-fx-background-color: #666666; -fx-border-radius: 10px;" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller">
     <children>
         <JFXButton fx:id="ALEX" buttonType="RAISED" layoutX="6.0" layoutY="8.0" onMouseClicked="#AnalizadorLexico" prefHeight="16.0" prefWidth="109.0" style="-fx-background-color: red;" text="Analisis Lexico" />
         <JFXButton fx:id="ASIN" buttonType="RAISED" layoutX="122.0" layoutY="8.0" onMouseClicked="#AnalizadorSintactico" style="-fx-background-color: red;" text="Analisis Sintactico" />

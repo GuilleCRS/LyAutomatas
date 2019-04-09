@@ -68,15 +68,15 @@ public class AnalizadorExpresion {
                     continue;
                 }
             }
-            if ((caract >= 'a' && caract <= 'z') || (caract >= 'A' && caract <= 'Z') || ('0' <= caract && caract <= '9')) {
-                salida = salida + " " +caract;
-            }
+            if ((caract >= 'a' && caract <= 'z') || (caract >= 'A' && caract <= 'Z') ) {
+                salida = salida  +caract;
+            }else if( ('0' <= caract && caract <= '9')) salida+=" "+caract+" ";
             if ((caract == '+') || (caract == '*') || (caract == '/') || (caract == '-')) {
                 S.push(caract);
             }
             if ((caract == '}') || (caract == ']') || (caract == ')')) {
                 if (!S.empty()) {
-                    salida = salida +" "+ S.pop();
+                    salida = salida +"  "+ S.pop()+"  ";
                 }
             }
         }

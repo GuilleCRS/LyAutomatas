@@ -7,7 +7,9 @@ class Prueba
         double valordouble=12.43;
         int valorint=-2;
         boolean valorboolean=true;
-        valorint:=(valorint*1)+1/(valorint*(valorint+2));
+        valorint:=(valorint*1)+1.5/(valor*(valorint+2));
+        valorint:=valorboolean+valorint;
+
 
     }
 }
