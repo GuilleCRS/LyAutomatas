@@ -1,7 +1,7 @@
 package GUI.Recorrido;
 
 /**
- * Created by ADM-PC on 25/04/2017.
+ * Created by guill on 25/04/2017.
  **/
 public class ArbolBB<T> {
     private NodoABB<T> Root;
