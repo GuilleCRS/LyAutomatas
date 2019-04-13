@@ -52,14 +52,14 @@ public class ArbolBB<T> {
         if (Raiz == null)
             return;
         inorder(Raiz.DameSubIzq());
-        System.out.print(Raiz.Info + ",");
+        System.out.print(Raiz.Info + " ");
         inorder(Raiz.DameSubDer());
     }
 
     void preorder(NodoABB<T> Raiz) {
         if (Raiz == null)
             return;
-        System.out.print(Raiz.Info + " ,");
+        System.out.print(Raiz.Info + " ");
         preorder(Raiz.DameSubIzq());
         preorder(Raiz.DameSubDer());
     }
@@ -69,7 +69,7 @@ public class ArbolBB<T> {
             return;
         posorder(Raiz.DameSubIzq());
         posorder(Raiz.DameSubDer());
-        System.out.print(Raiz.Info + ",");
+        System.out.print(Raiz.Info + " ");
     }
 
     boolean Busca(NodoABB<T> Raiz, T Dato) {
@@ -88,7 +88,7 @@ public class ArbolBB<T> {
         return Busca(Raiz.DameSubIzq(), Dato);
     }
 
-    public boolean buscar(T Dato) {
+    boolean buscar(T Dato) {
         NodoABB<T> n = Root;
         while (n != null) {
             if (Dato.toString().compareTo(n.Info.toString()) == 0)
