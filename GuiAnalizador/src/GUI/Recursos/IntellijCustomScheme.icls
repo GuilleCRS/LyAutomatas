@@ -1,0 +1,45 @@
+<scheme name="Darcula2" version="142" parent_scheme="Darcula">
+  <metaInfo>
+    <property name="created">2019-04-12T19:45:27</property>
+    <property name="ide">idea</property>
+    <property name="ideVersion">2018.3.5.0.0</property>
+    <property name="modified">2019-04-12T19:46:14</property>
+    <property name="originalScheme">Darcula2</property>
+  </metaInfo>
+  <attributes>
+    <option name="DEFAULT_BLOCK_COMMENT">
+      <value>
+        <option name="FOREGROUND" value="7bff00" />
+      </value>
+    </option>
+    <option name="DEFAULT_BRACES">
+      <value>
+        <option name="FOREGROUND" value="ff0031" />
+      </value>
+    </option>
+    <option name="DEFAULT_CONSTANT">
+      <value>
+        <option name="FOREGROUND" value="864ea2" />
+        <option name="FONT_TYPE" value="2" />
+      </value>
+    </option>
+    <option name="DEFAULT_IDENTIFIER">
+      <value />
+    </option>
+    <option name="DEFAULT_LINE_COMMENT">
+      <value>
+        <option name="FOREGROUND" value="7bff00" />
+      </value>
+    </option>
+    <option name="DEFAULT_STRING">
+      <value>
+        <option name="FOREGROUND" value="ffd800" />
+      </value>
+    </option>
+    <option name="UNMATCHED_BRACE_ATTRIBUTES">
+      <value>
+        <option name="FOREGROUND" value="300d1" />
+      </value>
+    </option>
+  </attributes>
+</scheme>
