@@ -86,33 +86,4 @@ public class AnalizadorExpresion {
        // System.out.println("Expresion infija:  " + exp);
        return salida;
     }
-    public String aggEspacio(String exp){
-        String salida="";
-        boolean decimal=false;
-        for(int i=0;i<exp.length();i++){
-            char caract = exp.charAt(i);
-            if (caract == '.') {
-                salida=salida+caract;
-                decimal=true;
-                continue;
-            }
-            if(decimal){
-                if(('0' <= caract && caract <= '9')){
-                    salida=salida+caract;
-                    decimal=false;
-                    continue;
-                }
-            }
-            if ((caract >= 'a' && caract <= 'z') || (caract >= 'A' && caract <= 'Z') || ('0' <= caract && caract <= '9')) {
-                salida = salida + " " +caract;
-            }
-            if ((caract == '+') || (caract == '*') || (caract == '/') || (caract == '-')) {
-                salida=salida + " " + caract;
-            }
-            if ((caract=='(')||(caract=='[')||(caract=='{')||(caract == '}') || (caract == ']') || (caract == ')')) {
-                salida=salida+" "+caract;
-            }
-        }
-        return salida;
-    }
 }

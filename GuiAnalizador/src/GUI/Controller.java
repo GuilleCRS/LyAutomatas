@@ -35,13 +35,27 @@ public class Controller implements Initializable {
     private ArrayList<String> ErroresSintaxis, ErrSemantico, Warnings;
     private ObservableList<Token> t; //Lista de tokens cargar tabla
     private ObservableList<Token> t2; //Lista de variables cargar tabla, no es necesario
+    private ObservableList<Expresion> t3;//Lista de expresiones para cargar tabla
+    private ObservableList<Triplo> t4; //Carga el triplo de la expresion;
     private String Codigo = "", ProgramaSintaxis = "";
+    private Tab temptab = new Tab("Triplos"); //tabla temporal para los triplos
+    TableView tv = new TableView(); //tableView para despegar la informacion de los triplos
     @FXML
     private TableView<Token> table, table2;
+    @FXML
+    private TableView<Expresion> table3;
+    @FXML
+    private TableView<Triplo> table4;
     @FXML
     private TableColumn tkn, tpo, vlr, lna, cna;
     @FXML
     private TableColumn tkn2, tpo2, vlr2, lna2;
+    @FXML
+    private TabPane tabpane;
+    @FXML
+    private TableColumn expasign,expexp,exppost;
+    @FXML
+    private TableColumn trid,tri1,triop,tri2,trires;
     @FXML
     private TextArea txtCDG;
     @FXML
@@ -64,18 +78,34 @@ public class Controller implements Initializable {
         Parent root = FXMLLoader.load(getClass().getResource("GUI.fxml"));
         Actualstage.close();
         Stage NewStage = new Stage();
-        root.setOnMousePressed(event -> {
-            UbicacionY = event.getSceneY();
-            UbicacionX = event.getSceneX();
-        });
-        root.setOnMouseDragged(event -> {
-            NewStage.setX(event.getScreenX() - UbicacionX);
-            NewStage.setY(event.getScreenY() - UbicacionY);
-        });
         NewStage.setScene(new Scene(root, 975, 495));
         NewStage.setResizable(false);
         NewStage.initStyle(StageStyle.TRANSPARENT);
         NewStage.show();
+    }
+
+    public void TriplosTab() throws IOException {
+        tv.setVisible(true);
+        TableColumn tbc = new TableColumn("ID");
+        tbc.setPrefWidth(100);
+        TableColumn tbc2 = new TableColumn("T1");
+        tbc2.setPrefWidth(100);
+        TableColumn tbc3 = new TableColumn("Operador");
+        tbc3.setPrefWidth(100);
+        TableColumn tbc4 = new TableColumn("T2");
+        tbc4.setPrefWidth(100);
+        //TableColumn tbc5 = new TableColumn("Resultado");
+        //tbc5.setPrefWidth(100);
+        tbc.setCellValueFactory(new PropertyValueFactory<Triplo, String>("idtriplo"));
+        tbc2.setCellValueFactory(new PropertyValueFactory<Triplo, String>("t1"));
+        tbc3.setCellValueFactory(new PropertyValueFactory<Triplo, String>("op"));
+        tbc4.setCellValueFactory(new PropertyValueFactory<Triplo, String>("t2"));
+        //tbc5.setCellValueFactory(new PropertyValueFactory<Triplo, String>("resultado"));
+        tv.getColumns().addAll(tbc, tbc2, tbc3, tbc4/*, tbc5*/);
+        tv.getItems().setAll(t4);
+        temptab.setContent(tv);
+        tabpane.getTabs().addAll(temptab);
+        tabpane.getSelectionModel().select(temptab);
     }
 
     public void AnalizadorLexico() {
@@ -209,7 +239,7 @@ public class Controller implements Initializable {
                                         }
                                         //Al terminar ese ciclo tendriamos una expresion y procedemos a evaluar
                                         //System.out.println(expresion);
-                                        AnalizadorExpresion ana = new AnalizadorExpresion();
+                                        AnalizadorExpresion2 ana = new AnalizadorExpresion2();
                                         if (!ana.Analisis(Expresion)) { //Si el analisis de expresion da falso , quiere decir que la expresion no tiene buena sintaxis
                                             //System.out.println("Entro: "+lineaActual);
                                             ErroresSintaxis.add("\nSe encontro un error sintactico en la expresion: " + Expresion + " que se encuentra en la linea: " + i + "\n");
@@ -223,7 +253,9 @@ public class Controller implements Initializable {
                                             exp.setLinea(i);//Numero de linea
                                             exp.setPostorder(ana.Conversion(Expresion));
                                             System.out.println(ana.Conversion(Expresion));
+                                            exp.setTriplo(ana.tripletear(ana.Conversion(Expresion)));
                                             Expresiones.add(exp);
+
                                         }
                                     }
                                     //System.out.println(" ==> "+j);
@@ -248,6 +280,23 @@ public class Controller implements Initializable {
                     }
                 }
                 System.out.println();
+                if(!Expresiones.isEmpty()) {
+                    t3 = FXCollections.observableArrayList(Expresiones);
+                    CargaExpresiones();
+                    Expresiones.forEach(e -> {
+                        System.out.println("Expresion: " + e.getAsigna() + " = " + e.getExpresion());
+                        System.out.println("Expresion postorder: " + e.getPostorder());
+                        System.out.println("Triplos: ");
+                        e.getTriplo().forEach(System.out::println);
+                        System.out.println(e.getAsigna() + " = t" + e.getTriplo().size());
+                        Triplo res=new Triplo();
+                        res.setT1(e.getAsigna());
+                        res.setT2("t"+e.getTriplo().size());
+                        res.setOp("=");
+                        e.getTriplo().add(res);
+                        System.out.println();
+                    });
+                }
                 //Verifica si el patron obtenido hace match con el de la sintaxis general y si no existen errores sintacticos por linea
                 if (!ErrSin) {
                     if (!Pattern.matches(Sintaxis.SINTAXIS_GENERAL.patronSin, ProgramaSintaxis)) {
@@ -274,9 +323,13 @@ public class Controller implements Initializable {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Debe realizar el analisis lexico", ButtonType.OK);
             alert.showAndWait();
         }
+
+
+
         //Expresiones.forEach(v -> System.out.println(v.getAsigna() + v.getExpresion())); //<<--Se imprime la variable y la expresion que se le quiere asignar
         ChequeoErrores();//Se checan los errores
     }
+
 
     public void AnalizadorSemantico() {
         if (Lex & Sin) { //Verificamos que se hayan realizado los analisis previos
@@ -428,8 +481,7 @@ public class Controller implements Initializable {
                     }
                     //Si el indicie es = a 6 quiere decir que se encontro una expresion
                     if (indice == 6) {
-                        //                       x=x + x-x;
-                        //Analizador Sintactico
+                        System.out.println("Expresion");
                     }
                     VarsTkns = new ArrayList<>();
                     Variables.forEach((k, v) -> VarsTkns.add(v));
@@ -657,5 +709,28 @@ public class Controller implements Initializable {
         lna2.setCellValueFactory(new PropertyValueFactory<Token, String>("Linea"));
         table2.getItems().setAll(t2);
 
+    }
+    private void CargaExpresiones() {
+        expasign.setCellValueFactory(new PropertyValueFactory<Expresion,String>("asigna"));
+        expexp.setCellValueFactory(new PropertyValueFactory<Expresion,String>("expresion"));
+        exppost.setCellValueFactory(new PropertyValueFactory<Expresion, String>("postorder"));
+        table3.getItems().setAll(t3);
+        table3.setRowFactory(e->{
+            TableRow<Expresion> row = new TableRow<>();
+            row.setOnMouseClicked(a-> {
+                if(!row.isEmpty()&&a.getClickCount()==2){
+                    Expresion click =row.getItem();
+                    t4 = FXCollections.observableArrayList(click.getTriplo());
+                   //CargaTriplos();
+                    try {
+                        TriplosTab();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+
+                }
+            });
+            return row;
+        });
     }
 }

@@ -6,10 +6,12 @@ class Prueba
         float valorfloat=-0.43;
         double valordouble=12.43;
         int valorint=-2;
+        int hola=2;
         boolean valorboolean=true;
         valorint:=(valorint*1)+1.5/(valor*(valorint+2));
         valorint:=valorboolean+valorint;
-
+        x:=1+3/2*(5+8)+a-b;
+        hola:=a-b*(c+8)/2+h;
 
     }
 }

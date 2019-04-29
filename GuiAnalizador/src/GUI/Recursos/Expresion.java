@@ -1,8 +1,11 @@
 package GUI.Recursos;
 
+import java.util.ArrayList;
+
 public class Expresion {
     private String asigna,expresion,postorder;
     private int linea;
+    private ArrayList<Triplo> triplo=new ArrayList<>();
 
 
     public Expresion(){}
@@ -11,6 +14,14 @@ public class Expresion {
         this.asigna = asigna;
         this.expresion = expresion;
         this.postorder = postorder;
+    }
+
+    public ArrayList<Triplo> getTriplo() {
+        return triplo;
+    }
+
+    public void setTriplo(ArrayList<Triplo> triplo) {
+        this.triplo = triplo;
     }
 
     public int getLinea() {

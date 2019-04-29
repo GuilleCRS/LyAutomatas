@@ -15,7 +15,7 @@
         <JFXButton fx:id="ALEX" buttonType="RAISED" layoutX="6.0" layoutY="8.0" onMouseClicked="#AnalizadorLexico" prefHeight="16.0" prefWidth="109.0" style="-fx-background-color: red;" text="Analisis Lexico" />
         <JFXButton fx:id="ASIN" buttonType="RAISED" layoutX="122.0" layoutY="8.0" onMouseClicked="#AnalizadorSintactico" style="-fx-background-color: red;" text="Analisis Sintactico" />
         <JFXButton fx:id="ASEM" buttonType="RAISED" layoutX="239.0" layoutY="8.0" onMouseClicked="#AnalizadorSemantico" style="-fx-background-color: red;" text="Analisis Semantico" />
-        <TabPane layoutX="445.0" layoutY="51.0" prefHeight="436.0" prefWidth="520.0" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="tabpane" layoutX="445.0" layoutY="51.0" prefHeight="436.0" prefWidth="520.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab text="Lexema">
                <content>
@@ -44,6 +44,17 @@
                     </columns>
                   </TableView>
                </content></Tab>
+            <Tab text="Expresiones">
+               <content>
+                  <TableView fx:id="table3" prefHeight="200.0" prefWidth="200.0">
+                    <columns>
+                      <TableColumn fx:id="expasign" prefWidth="83.0" text="Asignacion" />
+                      <TableColumn fx:id="expexp" minWidth="0.0" prefWidth="262.0" text="Expresion" />
+                        <TableColumn fx:id="exppost" prefWidth="175.0" text="Postorder" />
+                    </columns>
+                  </TableView>
+               </content>
+            </Tab>
             </tabs>
         </TabPane>
         <ImageView fitHeight="25.0" fitWidth="40.0" layoutX="930.0" layoutY="14.0" onMouseClicked="#onExitButtonClicked" pickOnBounds="true" preserveRatio="true">
