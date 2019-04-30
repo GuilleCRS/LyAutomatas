@@ -12,6 +12,7 @@ class Prueba
         valorint:=valorboolean+valorint;
         x:=1+3/2*(5+8)+a-b;
         hola:=a-b*(c+8)/2+h;
+        x:=(1*2+9)/2;
 
     }
 }

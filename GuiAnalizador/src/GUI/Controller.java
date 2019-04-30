@@ -85,6 +85,7 @@ public class Controller implements Initializable {
     }
 
     public void TriplosTab() throws IOException {
+        tv = new TableView();
         tv.setVisible(true);
         TableColumn tbc = new TableColumn("ID");
         tbc.setPrefWidth(100);
@@ -105,7 +106,7 @@ public class Controller implements Initializable {
         tv.getItems().setAll(t4);
         temptab.setContent(tv);
         tabpane.getTabs().addAll(temptab);
-        tabpane.getSelectionModel().select(temptab);
+       // tabpane.getSelectionModel().select(temptab);
     }
 
     public void AnalizadorLexico() {
@@ -244,16 +245,16 @@ public class Controller implements Initializable {
                                             //System.out.println("Entro: "+lineaActual);
                                             ErroresSintaxis.add("\nSe encontro un error sintactico en la expresion: " + Expresion + " que se encuentra en la linea: " + i + "\n");
                                             ErrSin = true;
-                                        } else {//Caso contrario se agrega en un objeto a un arreglo de expresiones
+                                        } else {
+                                            //Caso contrario se agrega en un objeto a un arreglo de expresiones
                                             //System.out.println("Expresion");
 
                                             Expresion exp = new Expresion();//Se crea una nuevo objeto expresion
                                             exp.setAsigna(Asigna);//Variable que se le quiere asignar dicha expresion
                                             exp.setExpresion(Expresion);//Expresion con espacios
                                             exp.setLinea(i);//Numero de linea
-                                            exp.setPostorder(ana.Conversion(Expresion));
-                                            System.out.println(ana.Conversion(Expresion));
-                                            exp.setTriplo(ana.tripletear(ana.Conversion(Expresion)));
+                                            exp.setPostorder(new Conversor().aPostorder(Expresion));
+                                            exp.setTriplo(ana.tripletear(exp.getPostorder()));
                                             Expresiones.add(exp);
 
                                         }
