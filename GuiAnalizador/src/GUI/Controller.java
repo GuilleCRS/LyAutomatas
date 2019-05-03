@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,7 @@ public class Controller implements Initializable {
     private ArrayList<Token> Tokens;
     private boolean Lex = false, ErrLex = false, Sin = false, ErrSin = false, Sem = false, ErrSem = false, ArchivoAbierto = false;
     private HashMap<Integer, String> texto, tipoSintactico;
+    private HashMap<String,Triplo> triplos;
     private ArrayList<Token> TokensNoAceptados, VarsTkns;
     private ArrayList<Expresion> Expresiones;
     private ArrayList<String> ErroresSintaxis, ErrSemantico, Warnings;
@@ -95,18 +97,18 @@ public class Controller implements Initializable {
         tbc3.setPrefWidth(100);
         TableColumn tbc4 = new TableColumn("T2");
         tbc4.setPrefWidth(100);
-        //TableColumn tbc5 = new TableColumn("Resultado");
-        //tbc5.setPrefWidth(100);
+        TableColumn tbc5 = new TableColumn("Resultado");
+        tbc5.setPrefWidth(100);
         tbc.setCellValueFactory(new PropertyValueFactory<Triplo, String>("idtriplo"));
         tbc2.setCellValueFactory(new PropertyValueFactory<Triplo, String>("t1"));
         tbc3.setCellValueFactory(new PropertyValueFactory<Triplo, String>("op"));
         tbc4.setCellValueFactory(new PropertyValueFactory<Triplo, String>("t2"));
-        //tbc5.setCellValueFactory(new PropertyValueFactory<Triplo, String>("resultado"));
-        tv.getColumns().addAll(tbc, tbc2, tbc3, tbc4/*, tbc5*/);
+        tbc5.setCellValueFactory(new PropertyValueFactory<Triplo, String>("resultado"));
+        tv.getColumns().addAll(tbc, tbc2, tbc3, tbc4, tbc5);
         tv.getItems().setAll(t4);
         temptab.setContent(tv);
         tabpane.getTabs().addAll(temptab);
-       // tabpane.getSelectionModel().select(temptab);
+        tabpane.getSelectionModel().select(temptab);
     }
 
     public void AnalizadorLexico() {
@@ -284,19 +286,7 @@ public class Controller implements Initializable {
                 if(!Expresiones.isEmpty()) {
                     t3 = FXCollections.observableArrayList(Expresiones);
                     CargaExpresiones();
-                    Expresiones.forEach(e -> {
-                        System.out.println("Expresion: " + e.getAsigna() + " = " + e.getExpresion());
-                        System.out.println("Expresion postorder: " + e.getPostorder());
-                        System.out.println("Triplos: ");
-                        e.getTriplo().forEach(System.out::println);
-                        System.out.println(e.getAsigna() + " = t" + e.getTriplo().size());
-                        Triplo res=new Triplo();
-                        res.setT1(e.getAsigna());
-                        res.setT2("t"+e.getTriplo().size());
-                        res.setOp("=");
-                        e.getTriplo().add(res);
-                        System.out.println();
-                    });
+
                 }
                 //Verifica si el patron obtenido hace match con el de la sintaxis general y si no existen errores sintacticos por linea
                 if (!ErrSin) {
@@ -497,6 +487,7 @@ public class Controller implements Initializable {
                 return;
             }
             if (!Expresiones.isEmpty()) {//Checamos si hay elementos en la tabla de expresiones
+                triplos=new HashMap<>();
                 Expresiones.forEach(expresion -> {
                     //Recorremos todas las expresiones guardadas durante el analisis semantico
                     if (Variables.containsKey(expresion.getAsigna())) {//Si la variable a la que se le quiere asignar la expresion existe entra
@@ -534,7 +525,22 @@ public class Controller implements Initializable {
                         ErrSem = true;
                     }
                 });
-
+                Expresiones.forEach(e -> {
+                    System.out.println("Expresion: " + e.getAsigna() + " = " + e.getExpresion());
+                    System.out.println("Expresion postorder: " + e.getPostorder());
+                    System.out.println("Triplos: ");
+                    e.getTriplo().forEach(System.out::println);
+                    System.out.println(e.getAsigna() + " = t" + e.getTriplo().size());
+                    Triplo res=new Triplo();
+                    res.setT1(e.getAsigna());
+                    res.setT2("t"+e.getTriplo().size());
+                    res.setOp("=");
+                    e.getTriplo().add(res);
+                    System.out.println();
+                    e.getTriplo().forEach(t->{
+                        triplos.put(t.getIdtriplo(),t);
+                    });
+                });
             }
         }
         else {//Se encontro que no se han hecho los analisi previos , muesta el error
@@ -719,19 +725,83 @@ public class Controller implements Initializable {
         table3.setRowFactory(e->{
             TableRow<Expresion> row = new TableRow<>();
             row.setOnMouseClicked(a-> {
-                if(!row.isEmpty()&&a.getClickCount()==2){
-                    Expresion click =row.getItem();
-                    t4 = FXCollections.observableArrayList(click.getTriplo());
-                   //CargaTriplos();
-                    try {
-                        TriplosTab();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                if(Sem){
+                    if(!ErrSem){
+                        if(!row.isEmpty()&&a.getClickCount()==2){
+                            Expresion click =row.getItem();
+                            t4 = FXCollections.observableArrayList(click.getTriplo());
+                            try {
+                                TriplosTab();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            getResultadoTriplos(click,click.getTriplo());
+                        }
+                    }else{
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Se encontraron errores semanticos, proceda a corregir", ButtonType.OK);
+                        alert.showAndWait();
                     }
-
+                }else{
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "No se ha realizado el analisis semantico", ButtonType.OK);
+                    alert.showAndWait();
                 }
+
             });
             return row;
         });
+    }
+
+    private void getResultadoTriplos(Expresion exp, ArrayList<Triplo> triplo) {
+        //Ya existen las variables en la expresion por lo tanto no deberia checar su existencia
+        String resultadoA="";
+        triplo.forEach(t->{
+            int index;
+            if(Variables.get(exp.getAsigna()).getTipo().equals("int")){
+                int a=0,b=0;
+
+                if(Character.isDigit(t.getT1().charAt(0))||t.getT1().charAt(0)=='-'){
+                    a=Integer.parseInt(t.getT1());
+                }else if(Character.isLetter(t.getT1().charAt(0))){
+                   if(Variables.containsKey(t.getT1())){
+                       a=Integer.parseInt(Variables.get(t.getT1()).getValor());
+                   }else{
+                      a=Integer.parseInt(triplos.get(t.getT1()).getResultado());
+                   }
+                }
+                if(Character.isDigit(t.getT2().charAt(0))||t.getT2().charAt(0)=='-'){
+                    b=Integer.parseInt(t.getT2());
+                }else if(Character.isLetter(t.getT2().charAt(0))){
+                    if(Variables.containsKey(t.getT2())){
+                        b=Integer.parseInt(Variables.get(t.getT2()).getValor());
+                    }else{
+                      b=Integer.parseInt(triplos.get(t.getT2()).getResultado());
+                    }
+                }
+                switch (t.getOp()){
+                    case "*":
+                        t.setResultado(String.valueOf(a*b));
+                        break;
+                    case "/":
+                        t.setResultado(String.valueOf(a/b));
+                        break;
+                    case "+":
+                        t.setResultado(String.valueOf(a+b));
+                        break;
+                    case "-":
+                        t.setResultado(String.valueOf(a-b));
+                        break;
+                    case "^":
+                        t.setResultado(String.valueOf(Math.pow(a,b)));
+                        break;
+                    default:
+                        t.setResultado(null);
+                        break;
+                }
+
+            }
+        });
+
+
+
     }
 }
