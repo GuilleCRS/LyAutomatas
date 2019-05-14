@@ -8,6 +8,8 @@ Guillermo Armando Cruz Salazar
 Instituto Tecnologico de Culiacan
 ```
 
+Bien Cruz..
+
 
 ### Commits
   * [Commit #1](https://github.com/GuilleCRS/LyAutomatas/tree/cccb83d37167583f5dd4cf9a79e79026b8603241)-Subida de proyecto en JavaCC.
